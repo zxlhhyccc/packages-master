@@ -12,13 +12,13 @@ PKG_RELEASE:=1
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/SELinuxProject/selinux/releases/download/20190315
 PKG_HASH:=1bccc8873e449587d9a2b2cf253de9b89a8291b9fbc7c59393ca9e5f5f4d2693
-PKG_BUILD_DEPENDS:=PACKAGE_python-libselinux:python2 PACKAGE_python-libselinux:swig/host
+PKG_BUILD_DEPENDS:=PACKAGE_python-libselinux:python PACKAGE_python-libselinux:swig/host
 HOST_BUILD_DEPENDS:=libsepol/host pcre/host
 
 PKG_MAINTAINER:=Thomas Petazzoni <thomas.petazzoni@bootlin.com>
 
 include $(INCLUDE_DIR)/package.mk
-include ../../lang/python/python2-package.mk
+include ../../lang/python/python-package.mk
 
 define Package/libselinux
   SECTION:=libs
@@ -33,7 +33,7 @@ define Package/python-libselinux
   SUBMENU:=Python
   SECTION:=lang
   CATEGORY:=Languages
-  DEPENDS:=+python2 +libselinux
+  DEPENDS:=+python +libselinux
 endef
 
 define Package/libselinux/description
