@@ -12,7 +12,7 @@ diff --git a/src/protocol.c b/src/protocol.c
 index fa96b6b..1be0a4e 100644
 --- a/src/protocol.c
 +++ b/src/protocol.c
-@@ -236,8 +236,12 @@ int callback_tty(struct lws *wsi, enum lws_callback_reasons reason, void *user,
+@@ -239,8 +239,12 @@ int callback_tty(struct lws *wsi, enum lws_callback_reasons reason, void *user,
          lwsl_warn("refuse to serve WS client due to the --max-clients option.\n");
          return 1;
        }
@@ -27,7 +27,7 @@ index fa96b6b..1be0a4e 100644
          lwsl_warn("refuse to serve WS client for illegal ws path: %s\n", buf);
          return 1;
        }
-@@ -276,8 +280,6 @@ int callback_tty(struct lws *wsi, enum lws_callback_reasons reason, void *user,
+@@ -279,8 +283,6 @@ int callback_tty(struct lws *wsi, enum lws_callback_reasons reason, void *user,
        LIST_INSERT_HEAD(&server->procs, proc, entry);
        server->client_count++;
  
@@ -36,7 +36,7 @@ index fa96b6b..1be0a4e 100644
  #if LWS_LIBRARY_VERSION_NUMBER >= 2004000
        lws_get_peer_simple(lws_get_network_wsi(wsi), pss->address, sizeof(pss->address));
  #else
-@@ -285,7 +287,7 @@ int callback_tty(struct lws *wsi, enum lws_callback_reasons reason, void *user,
+@@ -288,7 +290,7 @@ int callback_tty(struct lws *wsi, enum lws_callback_reasons reason, void *user,
        lws_get_peer_addresses(wsi, lws_get_socket_fd(wsi), name, sizeof(name), pss->address,
                               sizeof(pss->address));
  #endif
