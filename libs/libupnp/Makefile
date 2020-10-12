@@ -15,6 +15,7 @@ PKG_CPE_ID:=cpe:/a:libupnp_project:libupnp
 
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
+PKG_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/package.mk
 
