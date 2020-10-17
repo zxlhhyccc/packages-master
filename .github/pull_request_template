@@ -1,5 +1,8 @@
-Maintainer: me / @\<github-user> (find it by checking history of the package Makefile)
-Compile tested: (put here arch, model, OpenWrt version)
-Run tested: (put here arch, model, OpenWrt version, tests done)
+Thanks for your contribution to OpenWrt!
 
-Description:
+To help keep the codebase consistent and readable,
+and to help people review your contribution,
+we ask you to follow the rules you find in the wiki at this link
+https://openwrt.org/submitting-patches
+
+Please remove this message before posting the pull request.

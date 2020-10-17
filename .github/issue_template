@@ -1,16 +1,13 @@
-Please make sure that the issue subject starts with `<package-name>: `
+This repository is a mirror of our main repo at https://git.openwrt.org/openwrt/openwrt.git
+It is for reference only and is not active for checkins or for reporting issues.
 
-Also make sure that the package is maintained in this repository and not in base which should be submitted at https://bugs.openwrt.org or in the LuCI repository which should be submitted at https://github.com/openwrt/luci/issues.
+All issues should be reported at: https://bugs.openwrt.org
 
-Issues related to releases below 18.06 and forks are not supported or maintained and will be closed.
+Please do not open any NEW issue here - we will be closing the Github issues
+capability in the near future.
 
-# Issue template (remove lines from top till here)
+We will continue to accept Pull Requests here as described in the repo description.
 
-Maintainer: @\<github-user> (find it by checking history of the package Makefile)
-Environment: (put here arch, model, OpenWrt version)
+Close this now and click here: https://bugs.openwrt.org
 
-Description:
-
-```
-Formating code blocks by wrapping them with pairs of ```
-```
+Thankyou for your co-operation.
