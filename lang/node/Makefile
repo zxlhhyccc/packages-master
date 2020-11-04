@@ -13,9 +13,9 @@ PKG_HASH:=f47f4725dcae137b26f8e2a7d0ab2c2c7f1f47e4f96834e6a9242f157132255f
 PATCH_DIR:=./patches/v10.x
 else
 ifeq ($(CONFIG_NODEJS_14),y)
-PKG_VERSION:=v14.13.1
+PKG_VERSION:=v14.15.0
 PKG_RELEASE:=1
-PKG_HASH:=6061bd1e218c1e1f0a9fbc1643f501e8971d546a37028a26a1ee8ea93f6c15f6
+PKG_HASH:=3736d8622e7b16913fa20ca3d696e3caa7fdaec30ccc1054d080d98c5c01fb3b
 PATCH_DIR:=./patches/v14.x
 else
 PKG_VERSION:=v12.19.0
@@ -101,7 +101,7 @@ define Package/node/config
 
 		config NODEJS_14
 			depends on !(mips||mips64)
-			bool "14.x Current"
+			bool "14.x Active LTS"
 	endchoice
 
 	choice
@@ -188,6 +188,11 @@ define Package/node-npm/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(LN) ../lib/node_modules/npm/bin/npm-cli.js $(1)/usr/bin/npm
 	$(LN) ../lib/node_modules/npm/bin/npx-cli.js $(1)/usr/bin/npx
+endef
+
+define Package/node-npm/postrm
+#!/bin/sh
+rm -rf /usr/lib/node_modules/npm || true
 endef
 
 $(eval $(call HostBuild))

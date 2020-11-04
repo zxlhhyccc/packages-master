@@ -6,14 +6,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=typescript
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=4.0.3
+PKG_VERSION:=4.0.5
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.cloud.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
                 https://registry.npm.taobao.org/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=84457b86a8bc4be5421e4d8212367aa1a6afa744af2324ba9c33f76b46bdeac4
+PKG_HASH:=52bbbcc4f16cd5ea797d30b9daaf0650ee6d7b024189d00b2e193142cd79d00e
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=Apache-2.0
@@ -74,8 +74,16 @@ define Package/node-typescript/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{bin,lib} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(LN) ../lib/node/typescript/bin/tsc $(1)/usr/bin/tsc
-	$(LN) ../lib/node/typescript/bin/tsserver $(1)/usr/bin/tsserver
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/tsc $(1)/usr/bin/tsc
+	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/tsserver $(1)/usr/bin/tsserver
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules
+	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+endef
+
+define Package/node-typescript/postrm
+#!/bin/sh
+rm /usr/lib/node_modules/typescript || true
+rm -rf /usr/lib/node/typescript || true
 endef
 
 define Host/Compile
@@ -96,8 +104,8 @@ define Host/Install
 	$(CP) $(HOST_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{bin,lib} \
 		$(1)/lib/node_modules/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/bin
-	$(LN) ../lib/node_modules/typescript/bin/tsc $(1)/bin/tsc
-	$(LN) ../lib/node_modules/typescript/bin/tsserver $(1)/bin/tsserver
+	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin/tsc $(1)/bin/tsc
+	$(LN) ../lib/node_modules/$(PKG_NPM_NAME)/bin/tsserver $(1)/bin/tsserver
 endef
 
 $(eval $(call HostBuild))
