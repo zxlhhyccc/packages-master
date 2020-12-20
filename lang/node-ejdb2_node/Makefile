@@ -6,14 +6,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=ejdb2_node
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=1.0.42
+PKG_VERSION:=1.0.44
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.cloud.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
                 https://registry.npm.taobao.org/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=e3fefb8ee86be03ec5bcfd281aad7c836d80e3e72f23110205c39ca5fddbb025
+PKG_HASH:=e5d8bcdbfde817ba5a683e1073ef931f4e6345dfb9929f2b54fefa08bef95b35
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=MIT
@@ -48,6 +48,13 @@ TARGET_CFLAGS+=$(FPIC)
 TARGET_CPPFLAGS+=$(FPIC)
 TARGET_LDFLAGS+=-latomic
 
+CMINC_PATH_LIST=$(STAGING_DIR)/usr/include
+ifeq ($(CONFIG_USE_MUSL),y)
+    CMINC_PATH_LIST+=$(TOOLCHAIN_DIR)/include/fortify
+endif
+CMINC_PATH_LIST+=$(TOOLCHAIN_DIR)/include
+CMINC_PATH:=$(subst $(space),:,$(CMINC_PATH_LIST))
+
 define Build/Compile
 	$(MAKE_VARS) \
 	$(MAKE_FLAGS) \
@@ -58,7 +65,7 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	CMAKE_INCLUDE_PATH="$(STAGING_DIR)/usr/include:$(TOOLCHAIN_DIR)/include" \
+	CMAKE_INCLUDE_PATH="$(CMINC_PATH)" \
 	CMAKE_LIBRARY_PATH="$(STAGING_DIR)/usr/lib:$(TOOLCHAIN_DIR)/lib" \
 	npm install -g $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)

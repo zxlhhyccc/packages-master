@@ -9,17 +9,17 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=node-hid
 PKG_NAME:=$(PKG_NPM_NAME)
-PKG_VERSION:=1.3.1
-PKG_RELEASE:=2
+PKG_VERSION:=2.1.1
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.cloud.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
                 https://registry.npm.taobao.org/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=88c5a36c82c360d2583d6a1fe3bed31302ff994aca0867ec8678f681cdb38266
+PKG_HASH:=6c1f05935215feed4e8d2f4aecf31abbad8fa783d252b0bd6041ed2f2e96e9ba
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
-PKG_LICENSE:=MIT or X11
+PKG_LICENSE:=MIT OR X11
 PKG_LICENSE_FILES:=
 
 PKG_BUILD_DEPENDS:=node/host
@@ -35,7 +35,7 @@ define Package/node-hid
   CATEGORY:=Languages
   TITLE:=Access USB HID devices from node.js
   URL:=https://www.npmjs.com/package/node-hid
-  DEPENDS:=+node +hidapi +libusb-1.0 +libudev $(ICONV_DEPENDS)
+  DEPENDS:=+node $(ICONV_DEPENDS) +libusb-1.0 +libudev
 endef
 
 define Package/node-hid/description
@@ -50,10 +50,9 @@ TMPNPM:=$(shell mktemp -u XXXXXXXXXX)
 
 TARGET_CFLAGS+=$(FPIC) -I$(STAGING_DIR)/usr/include/libusb-1.0
 TARGET_CPPFLAGS+=$(FPIC)
-TARGET_LDFLAGS+=$(if $(ICONV_FULL),-liconv)
 
 define Build/Compile
-	git init $(PKG_BUILD_DIR)
+	GYP_DEFINES='driver="hidraw"' \
 	$(MAKE_VARS) \
 	$(MAKE_FLAGS) \
 	npm_config_arch=$(NODEJS_CPU) \
@@ -70,9 +69,7 @@ endef
 
 define Package/node-hid/install
 	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{package.json,*.md} \
-		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{binding.gyp,*.js} \
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{package.json,*.md,*.js} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,src} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/

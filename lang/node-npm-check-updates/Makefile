@@ -6,14 +6,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=npm-check-updates
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=10.0.0
+PKG_VERSION:=10.2.5
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.cloud.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
                 https://registry.npm.taobao.org/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=da712b4712bdcc6801a6c4e635ca8ff7b3c101fc5ff5584192f4d414b7648ca5
+PKG_HASH:=8b253c67e08fa97777391797aeae8532cd35d34db7f0fd649ad1c9a93e2a8a1f
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>, Patrik Laszlo <alabard@gmail.com>
 PKG_LICENSE:=Apache-2.0
@@ -38,15 +38,14 @@ define Package/node-npm-check-updates/description
  The npm-check-updates program is a command-line tool that allows you to upgrade your package.json or bower.json dependencies to the latest versions, regardless of existing version constraints
 endef
 
+TAR_OPTIONS+= --strip-components 1
+TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
+
 NODEJS_CPU:=$(subst powerpc,ppc,$(subst aarch64,arm64,$(subst x86_64,x64,$(subst i386,ia32,$(ARCH)))))
 TMPNPM:=$(shell mktemp -u XXXXXXXXXX)
 
 TARGET_CFLAGS+=$(FPIC)
 TARGET_CPPFLAGS+=$(FPIC)
-
-define Build/Prepare
-	$(INSTALL_DIR) $(PKG_BUILD_DIR)
-endef
 
 define Build/Compile
 	$(MAKE_VARS) \
@@ -58,14 +57,19 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install -g $(DL_DIR)/$(PKG_SOURCE)
+	npm install -g $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 endef
 
 define Package/node-npm-check-updates/install
-	$(INSTALL_DIR) $(1)/usr/lib/node
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/* $(1)/usr/lib/node/
+	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{package.json,*.md} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/LICENSE \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,lib,bin} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/cli.js $(1)/usr/bin/npm-check-updates
 	$(LN) ../lib/node/$(PKG_NPM_NAME)/bin/cli.js $(1)/usr/bin/ncu

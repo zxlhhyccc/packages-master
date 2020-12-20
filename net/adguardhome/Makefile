@@ -6,13 +6,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=adguardhome
-PKG_VERSION:=0.103.3
+PKG_VERSION:=0.104.3
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/AdguardTeam/AdGuardHome
-PKG_MIRROR_HASH:=edf00ede9d208b7f78574e267ad2617dd4d4f06548cb2e6369cc1ad702427d9a
+PKG_MIRROR_HASH:=9051c08ebefccd918cad9b487d2d3b2c4b276ac71f16706c2ae8ee2a37ba9d03
 
 PKG_LICENSE:=GPL-3.0-only
 PKG_LICENSE_FILES:=LICENSE.txt
@@ -22,8 +22,12 @@ PKG_BUILD_DEPENDS:=golang/host node/host packr/host
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
 
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_ADGUARDHOME_COMPRESS_GOPROXY \
+	CONFIG_ADGUARDHOME_COMPRESS_UPX
+
 GO_PKG:=github.com/AdguardTeam/AdGuardHome
-GO_PKG_EXCLUDES:=dhcpd/standalone
+GO_PKG_EXCLUDES:=internal/dhcpd/standalone
 GO_PKG_LDFLAGS_X:=main.version=$(PKG_VERSION) main.channel=release main.goarm=$(GO_ARM)
 
 include $(INCLUDE_DIR)/package.mk
@@ -45,15 +49,33 @@ define Package/adguardhome/description
 Free and open source, powerful network-wide ads and trackers blocking DNS server.
 endef
 
+define Package/$(PKG_NAME)/config
+config ADGUARDHOME_COMPRESS_GOPROXY
+	bool "Compiling with GOPROXY proxy"
+	default n
+
+config ADGUARDHOME_COMPRESS_UPX
+	bool "Compress executable files with UPX"
+	default n
+endef
+
+ifeq ($(CONFIG_ADGUARDHOME_COMPRESS_GOPROXY),y)
+export GO111MODULE=on
+export GOPROXY=https://goproxy.io
+endif
+
 define Build/Compile
 	( \
 		pushd $(PKG_BUILD_DIR) ; \
 		npm --prefix client ci ; \
 		npm --prefix client run build-prod ; \
-		packr -z -v -i home ; \
+		packr -z -v -i internal/home ; \
 		popd ; \
 		$(call GoPackage/Build/Compile) ; \
 	)
+ifeq ($(CONFIG_ADGUARDHOME_COMPRESS_UPX),y)
+	$(STAGING_DIR_HOST)/bin/upx --lzma --best $(GO_PKG_BUILD_BIN_DIR)/AdGuardHome
+endif
 endef
 
 define Package/adguardhome/install

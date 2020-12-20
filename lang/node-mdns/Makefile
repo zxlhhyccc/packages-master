@@ -6,14 +6,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=mdns
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=2.5.1
-PKG_RELEASE:=3
+PKG_VERSION:=2.7.2
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.cloud.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
                 https://registry.npm.taobao.org/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=be1a4e3ffcc61f520e3e273aa9b54677e62818087d425d2757d0089e5d5c78dd
+PKG_HASH:=13969a982846913cd59d01a589c370e37a7090c0019d422b514693e2ba30a5f5
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=MIT
@@ -38,15 +38,14 @@ define Package/node-mdns/description
  mdns adds multicast DNS service discovery, also known as zeroconf or bonjour to Node.js. It provides an object based interface to announce and browse services on the local network
 endef
 
+TAR_OPTIONS+= --strip-components 1
+TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
+
 NODEJS_CPU:=$(subst powerpc,ppc,$(subst aarch64,arm64,$(subst x86_64,x64,$(subst i386,ia32,$(ARCH)))))
 TMPNPM:=$(shell mktemp -u XXXXXXXXXX)
 
 TARGET_CFLAGS+=$(FPIC) -I$(STAGING_DIR)/usr/include/avahi-compat-libdns_sd
 TARGET_CPPFLAGS+=$(FPIC)
-
-define Build/Prepare
-	$(INSTALL_DIR) $(PKG_BUILD_DIR)
-endef
 
 define Build/Compile
 	$(MAKE_VARS) \
@@ -58,14 +57,24 @@ define Build/Compile
 	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install -g $(DL_DIR)/$(PKG_SOURCE)
+	npm install -g $(PKG_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
 endef
 
 define Package/node-mdns/install
-	$(INSTALL_DIR) $(1)/usr/lib/node
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/* $(1)/usr/lib/node/
+	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{package.json,*.md} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{CHANGES,wscript} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,lib,utils} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{examples,out,tests} \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
+	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)/build/Release
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/build/Release/dns_sd_bindings.node \
+		$(1)/usr/lib/node/$(PKG_NPM_NAME)/build/Release/
 	$(INSTALL_DIR) $(1)/usr/lib/node_modules
 	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
 endef

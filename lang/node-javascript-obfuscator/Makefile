@@ -6,14 +6,14 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=javascript-obfuscator
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=2.8.1
+PKG_VERSION:=2.9.4
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.cloud.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
                 https://registry.npm.taobao.org/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=c232e3cc784fca960b15cd1d6675159736993c9355006d8e18ef8816e0d47964
+PKG_HASH:=db443ed7c07a7a111352dac4aa7c6edd7969f97386f37c1cfe884d5a8c5f5408
 
 PKG_MAINTAINER:=Zbynek Kocur <zbynek.kocur@fel.cvut.cz>
 PKG_LICENSE:=BSD-2-Clause
@@ -93,7 +93,7 @@ define Host/Compile
 	npm_config_prefix=$(HOST_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(HOSTTMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(HOSTTMPNPM) \
-	npm install -g --no-optional $(HOST_BUILD_DIR)
+	npm install -g $(HOST_BUILD_DIR)
 	rm -rf $(TMP_DIR)/npm-tmp-$(HOSTTMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(HOSTTMPNPM)
 endef
