@@ -1,12 +1,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=syncthing
-PKG_VERSION:=1.9.0
-PKG_RELEASE:=2
+PKG_VERSION:=1.14.0
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=syncthing-source-v$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/syncthing/syncthing/releases/download/v$(PKG_VERSION)
-PKG_HASH:=a4e3e5997b2c4c76512ed9b32a067b2a90e26c0d445f8c3c62af65d2b93d4d8b
+PKG_HASH:=55a6fb08a9dbc1a31a6b429a16abb3a76d8c24b491a86a52170ddaadea33f683
 
 PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/$(PKG_NAME)
 
@@ -18,6 +18,10 @@ PKG_CPE_ID:=cpe:/a:syncthing:syncthing
 PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
+
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_SYNCTHING_COMPRESS_GOPROXY \
+	CONFIG_SYNCTHING_COMPRESS_UPX
 
 GO_PKG:=github.com/syncthing/syncthing/
 GO_PKG_BUILD_PKG:=github.com/syncthing/syncthing/cmd/syncthing/
@@ -55,11 +59,33 @@ define Package/syncthing/description
 		third party and how it's transmitted over the Internet.
 endef
 
-define Package/syncthing/install
-	$(call GoPackage/Package/Install/Bin,$(1))
+define Package/syncthing/config
+config SYNCTHING_COMPRESS_GOPROXY
+	bool "Compiling with GOPROXY proxy"
+	default n
 
-	#$(CP) ./files/* $(1)/
+config SYNCTHING_COMPRESS_UPX
+	bool "Compress executable files with UPX"
+	default y
 endef
+
+ifeq ($(CONFIG_SYNCTHING_COMPRESS_GOPROXY),y)
+  export GO111MODULE=on
+  export GOPROXY=https://goproxy.io
+endif
+
+define Build/Compile
+	$(call GoPackage/Build/Compile)
+ifeq ($(CONFIG_SYNCTHING_COMPRESS_UPX),y)
+	$(STAGING_DIR_HOST)/bin/upx --lzma --best $(GO_PKG_BUILD_BIN_DIR)/syncthing
+endif
+endef
+
+#define Package/syncthing/install
+#	$(call GoPackage/Package/Install/Bin,$(1))
+#
+#	$(CP) ./files/* $(1)/
+#endef
 
 $(eval $(call GoBinPackage,syncthing))
 $(eval $(call BuildPackage,syncthing))

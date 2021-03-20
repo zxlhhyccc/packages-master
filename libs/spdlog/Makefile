@@ -51,4 +51,14 @@ CMAKE_OPTIONS += \
 
 TARGET_CXXFLAGS += -flto
 
+define Build/InstallDev
+	$(Build/InstallDev/cmake)
+	$(CP) $(PKG_BUILD_DIR)/include/spdlog/fmt/bundled $(1)/usr/include/spdlog/fmt
+endef
+
+define Package/spdlog/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libspdlog.so* $(1)/usr/lib/
+endef
+
 $(eval $(call BuildPackage,spdlog))
